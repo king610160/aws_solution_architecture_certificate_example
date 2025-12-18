@@ -1,0 +1,22 @@
+---
+- name: 上傳指定檔案至 S3
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    bucket_name: "king610160-test-bucket-5"
+    # local_dir 要寫成絕對路徑，是執行 yaml 的路徑再來看 test_file 在哪
+    local_dir: "{{ playbook_dir }}/../../readme.md"
+    # S3 上的目標目錄
+    remote_path: "readme.md"
+
+  tasks:
+    - name: 上傳指定檔案
+      amazon.aws.s3_object:
+        bucket: "{{ bucket_name }}"
+        object: "{{ remote_path }}"     # 直接填入 S3 上的目標 Key
+        src: "{{ local_dir }}"          # 直接填入本地檔案的絕對路徑
+        mode: put
+        # 只在檔案不同時覆蓋
+        overwrite: different

@@ -1,0 +1,24 @@
+---
+- name: 檢視 AWS S3 buckets
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    aws_region: "ap-northeast-1"
+
+  tasks:
+    # 要使用 bucket_info 的方法
+    - name: 獲取所有 S3 Bucket 資訊
+      amazon.aws.s3_bucket_info:
+        region: "{{ aws_region }}"
+      register: all_buckets
+
+    - name: 顯示所有 Bucket 名稱
+      ansible.builtin.debug:
+        # 這裡我們用 query 語法只抓出名稱，不然結果會非常大
+        msg: "{{ all_buckets.buckets | list }}"
+
+    # - name: 顯示完整偵錯資訊 (如果你想看細節)
+    #   ansible.builtin.debug:
+    #     var: all_buckets

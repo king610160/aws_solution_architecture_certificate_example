@@ -1,0 +1,36 @@
+# 下方參數是為了讓 aws cli 可以自動補完
+AWS_AUTOPROMPT=on
+
+# ls 看有哪些 s3 bucket
+aws s3 ls --output json
+
+# 只不刪某些檔案，s3 會要求要是空的才能刪
+aws s3 rm s3://amzn-s3-demo-bucket/ \
+    --recursive \
+    --exclude "*.jpg"
+
+# 砍掉 bucket
+aws s3 rb s3://amzn-s3-demo-bucket
+
+## aws s3 v.s aws s3api
+aws s3: 給人看的，類似 linux
+aws s3: 給機器看的，是一包 json，然後很詳細
+
+# 查詢特定欄位值
+aws s3api list-buckets --query 'Buckets[].Name' --output table
+
+# 查看多欄位
+aws s3api list-buckets --query 'Buckets[].{N: Name, D: CreationDate}' --output table
+
+# jmespath
+是一個類似 k8s jsonpath
+
+# 可以下 query
+aws s3api list-buckets --query "Buckets[?contains(Name, 'king610160')].{Name: Name, Created: CreationDate}" --output table
+
+# 上傳檔案，也可以傳整個資料夾
+aws s3 sync ./test_file s3://test/test_file
+
+# 下載檔案
+aws s3api get-object --bucket test --key test_file/ansble.png aws_ansible.png
+

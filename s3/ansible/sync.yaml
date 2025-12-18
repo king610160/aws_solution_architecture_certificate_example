@@ -1,0 +1,37 @@
+---
+- name: 同步資料夾至 S3
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    bucket_name: "king610160-test-bucket-5"
+    # local_dir 要寫成絕對路徑，是執行 yaml 的路徑再來看 test_file 在哪
+    local_dir: "{{ playbook_dir }}/../test_file"
+    # S3 上的目標目錄
+    remote_path: "test_file"
+    
+  tasks:
+    - name: 排錯：確認變數值與絕對路徑
+      ansible.builtin.debug:
+        msg: 
+          - "變數 bucket_name 是: {{ bucket_name }}"
+          - "變數 local_dir 是: {{ local_dir }}"
+          - "目前的執行目錄 (cwd) 是: {{ lookup('env', 'PWD') }}"
+          - "Playbook 所在目錄是: {{ playbook_dir }}"
+
+    - name: 偵錯：看看 filetree 抓到什麼
+      ansible.builtin.debug:
+        msg: "{{ query('community.general.filetree', local_dir) }}"
+
+    - name: 遞迴上傳資料夾內容
+      amazon.aws.s3_object:
+        bucket: "{{ bucket_name }}"
+        object: "{{ remote_path }}/{{ item.path }}"
+        src: "{{ item.root }}/{{ item.path }}"
+        mode: put
+        # 只在檔案不同時覆蓋
+        overwrite: different
+      # loop 會掃描資料夾，只找檔案 (file)，排除目錄 (directory)
+      loop: "{{ query('community.general.filetree', local_dir) }}"
+      when: item.state == 'file'

@@ -1,0 +1,25 @@
+---
+- name: 列出特定的 AWS S3 bucket 內的物件
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    bucket_name: "king610160-test-bucket-5"
+    aws_region: "ap-northeast-1"
+
+  tasks:
+    - name: 獲取 Bucket 內的所有物件清單
+      amazon.aws.s3_object_info:
+        bucket_name: "{{ bucket_name }}"
+        # 如果你想看特定目錄，可以加 prefix: "test_file/"
+      register: s3_objects
+
+    - name: 顯示物件清單 (檔名)
+      ansible.builtin.debug:
+        # 你的版本中，資料直接在 s3_keys 裡面
+        msg: "{{ s3_objects.s3_keys }}"
+
+    - name: 顯示檔案數量
+      ansible.builtin.debug:
+        msg: "這個 Bucket 裡共有 {{ s3_objects.s3_keys | length }} 個物件"

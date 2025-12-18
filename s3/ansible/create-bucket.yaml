@@ -1,0 +1,27 @@
+---
+- name: 建立 AWS S3 bucket
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    bucket_name: "king610160-test-bucket-5"
+    aws_region: "ap-northeast-1"
+
+  tasks:
+    # s3_bucket 是操作的方法，不是拿來看的
+    - name: build new s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ bucket_name }}"
+        region: "{{ aws_region }}"
+        state: present
+      register: bucket_result
+
+    # # 顯示完整的 json 結構
+    # - name: show all info (debug)
+    #   ansible.builtin.debug:
+    #     var: bucket_result
+
+    - name: show result
+      ansible.builtin.debug:
+        msg: "Bucket {{ bucket_result.name }} has been created."

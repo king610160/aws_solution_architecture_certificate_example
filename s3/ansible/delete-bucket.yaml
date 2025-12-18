@@ -1,0 +1,22 @@
+---
+- name: 刪除 AWS S3 bucket
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    bucket_name: "king610160-test-bucket-5"
+    aws_region: "ap-northeast-1"
+
+  tasks:
+    - name: delete s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ bucket_name }}"
+        region: "{{ aws_region }}"
+        state: absent
+      register: bucket_result
+
+    # 顯示完整的 json 結構
+    - name: show all info (debug)
+      ansible.builtin.debug:
+        var: bucket_result

@@ -1,0 +1,23 @@
+---
+- name: 批次刪除 S3 Bucket 內的所有物件
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    bucket_name: "king610160-test-bucket-5"
+    aws_region: "ap-northeast-1"
+
+  tasks:
+    - name: 1. 獲取目前 Bucket 內的所有物件清單
+      amazon.aws.s3_object_info:
+        bucket_name: "{{ bucket_name }}"
+      register: s3_list_result
+
+    - name: 2. 批次刪除物件 (如果清單不為空)
+      amazon.aws.s3_object:
+        bucket: "{{ bucket_name }}"
+        object: "{{ item }}"
+        mode: delobj
+      loop: "{{ s3_list_result.s3_keys }}"
+      when: s3_list_result.s3_keys | length > 0
