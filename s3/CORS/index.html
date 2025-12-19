@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3 CORS Test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=BBH+Bartle&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'BBH Bartle', sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1 { color: #333; }
+        .error { color: red; font-weight: bold; border: 1px solid red; padding: 10px; display: none; }
+        .success { color: green; font-weight: bold; border: 1px solid green; padding: 10px; display: none; }
+    </style>
+</head>
+<body>
+    <h1>S3 CORS Configuration Test</h1>
+    <p>這是一個測試 fetch 跨網域請求的頁面。</p>
+    
+    <div id="status-error" class="error">CORS 請求失敗！請開啟 Console 查看紅字。</div>
+    <div id="status-success" class="success">CORS 請求成功！已讀取到 JS 內容。</div>
+
+    <hr>
+    <h3>JS 檔案內容預覽：</h3>
+    <pre id="content-display">等待請求中...</pre>
+
+    <script>
+        // 設定目標 URL (另一個 S3 Bucket 的 JS)
+        const targetUrl = "http://cors-policy-test2-2334.s3-website.ap-northeast-1.amazonaws.com/index.js";
+
+        console.log("開始發起 fetch 請求...");
+
+        // 使用 fetch 發起非同步請求
+        fetch(targetUrl)
+            .then(response => {
+                if (!response.ok) throw new Error("網路回應不正常");
+                return response.text(); // 試圖讀取檔案內容
+            })
+            .then(data => {
+                console.log("成功讀取資料：", data);
+                document.getElementById('status-success').style.display = 'block';
+                document.getElementById('content-display').textContent = data;
+            })
+            .catch(err => {
+                console.error("發生錯誤（這通常就是 CORS 擋掉的地方）：", err);
+                document.getElementById('status-error').style.display = 'block';
+                document.getElementById('content-display').textContent = "無法讀取內容，請按 F12 檢查 Console。";
+            });
+    </script>
+</body>
+</html>

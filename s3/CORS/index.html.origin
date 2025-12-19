@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=BBH+Bartle&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'BBH Bartle', sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        S3 CORS Configuration
+    </h1>
+    <p>
+        This directory contains files related to configuring Cross-Origin Resource Sharing (CORS) for Amazon S3 buckets.
+    </p>
+    <ul>
+        <li>
+            <strong>policy.json</strong>: This file contains the JSON policy that defines the permissions for accessing S3 resources.
+        </li>
+    </ul> 
+</body>
+<script type="text/javascript" src="http://cors-policy-test2-2334.s3-website.ap-northeast-1.amazonaws.com/index.js">
+</script>
+</html>

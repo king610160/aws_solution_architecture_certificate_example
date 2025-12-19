@@ -1,0 +1,10 @@
+{
+  "CORSRules": [
+    {
+      "AllowedOrigins": ["http://cors-policy-test-2456.s3-website.ap-northeast-1.amazonaws.com"],
+      "AllowedHeaders": ["*"],
+      "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
+      "MaxAgeSeconds": 3000
+    }
+  ]
+}
