@@ -12,13 +12,13 @@ class MyCdkAppStack(Stack):
 
         # 這裡就是用 Python 定義一個 S3 Bucket
         s3.Bucket(self, "MyFirstCDKBucket",
-            # SAA 考試重點 1: Bucket 名稱 (如果不指定，CDK 會自動幫你生成一個全球唯一的)
-            bucket_name="king610160-cdk-test-bucket", 
+            # Bucket 名稱 (如果不指定，CDK 會自動幫你生成一個全球唯一的)
+            bucket_name="king610160-test-bucket-12345", 
             
-            # SAA 考試重點 2: 版本控制 (Versioning)
+            # 版本控制 (Versioning)
             versioned=True,
             
-            # SAA 考試重點 3: 加密 (預設使用 S3 Managed Key)
+            # 加密 (預設使用 S3 Managed Key)
             encryption=s3.BucketEncryption.S3_MANAGED,
             
             # 方便測試：當刪除 Stack 時，連同 Bucket 一起刪除 (預設是 RETAIN 保留)

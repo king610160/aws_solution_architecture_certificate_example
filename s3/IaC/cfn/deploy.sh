@@ -7,14 +7,18 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # 定義變數
-# STACK_NAME='king610160-test-bucket-stack-4'
+STACK_NAME='my-stack'
 REGION='ap-northeast-1'
 TEMPLATE_PATH="${SCRIPT_DIR}/../create-bucket.yaml"
 
+# 甚至可以動態生成名稱
+BUCKET_NAME="king610160-dynamic-name-$(date +%s)"
+
 echo "正在部署範本：${TEMPLATE_PATH}"
 
-# 部署 CloudFormation 範本
+# 這裡的 MyBucketName 參數會傳給 CloudFormation 範本
 aws cloudformation deploy \
     --template-file "$TEMPLATE_PATH" \
     --region "$REGION" \
-    # --stack-name "$STACK_NAME"
+    --stack-name "$STACK_NAME" \
+    --parameter-overrides MyBucketName="$BUCKET_NAME"
