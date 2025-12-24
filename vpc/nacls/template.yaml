@@ -1,0 +1,105 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: launch an EC2 instance with simple configuration
+Parameters:
+  VpcId:
+    Type: String
+    Default: vpc-00a1707be07d845aa
+  ImageId:
+    Type: String
+    Default: ami-0536b5f8533c594b5
+  SubnetId:
+    Type: String
+    Default: subnet-082b505bb9c9f3a6f
+  InstanceType:
+    Type: String
+    Default: t2.micro
+Resources:
+  # 1. 建立 IAM Role
+  EC2SSMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ec2.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      ManagedPolicyArns:
+        # 這是 AWS 預設的 Policy，允許 SSM 基本操作（Session Manager 等）
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+  # 2. 建立 Instance Profile (EC2 需要透過它來取得 Role)
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2SSMRole
+
+  # 3. Security Group
+  SG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow all traffic
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+  # 3. 建立 ENI 並附加到 EC2 Instance
+  MyENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetId
+      Description: "Primary network interface with Public IP"
+      GroupSet:
+        - !GetAtt SG.GroupId
+      # 關鍵：在這裡設定 AssociatePublicIpAddress 為 true
+      # 注意：ENI 本身不直接持有 Public IP 屬性，必須在 Instance 呼叫時指定
+
+  MyEC2Instance: 
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: !Ref ImageId
+      InstanceType: !Ref InstanceType
+      # Attach the IAM role to the instance
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      # 直接在 Instance 層級定義網路，這對於分配 Public IP 最穩定
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          AssociatePublicIpAddress: "true"
+          SubnetId: !Ref SubnetId
+          GroupSet:
+            - !Ref SG
+      # --- Apache 安裝腳本開始 ---
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # 1. 更新系統並安裝 Apache (httpd)
+          yum update -y
+          yum install -y httpd
+          
+          # 2. 啟動 Apache 並設定開機自動啟動
+          systemctl start httpd
+          systemctl enable httpd
+          
+          # 3. 建立一個簡單的網頁內容
+          echo "<h1>Hello from AWS EC2!</h1><p>Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)</p>" > /var/www/html/index.html
+  # SG:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupDescription: Allow http to client host
+  #     VpcId: !Ref VpcId
+  #     # -1 means allow all
+  #     SecurityGroupIngress:
+  #       - IpProtocol: -1
+  #         FromPort: -1
+  #         ToPort: -1
+  #         CidrIp: 0.0.0.0/0
+  #     SecurityGroupEgress:
+  #       - IpProtocol: -1
+  #         FromPort: -1
+  #         ToPort: -1
+  #         CidrIp: 0.0.0.0/0
