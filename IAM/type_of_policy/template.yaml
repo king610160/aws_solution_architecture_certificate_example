@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: launch an IAM user
+Parameters:
+  UserName:
+    Type: String
+    Default: IAM-test-user
+  RootRole:
+    Type: String
+    Default: Root
+Resources:
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-iam-user.html
+  MyIAMUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref UserName
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      Policies:
+        - PolicyName: MyUserPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-iam-policy.html
+  MyInlinePolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: MyInlinePolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 'ec2:*'
+            Resource: '*'
+      Users:
+        - !Ref MyIAMUser
+  MySecondInlinePolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: MySecondInlinePolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 's3:*'
+            Resource: '*'
+      Users:
+        - !Ref MyIAMUser
